@@ -57,10 +57,16 @@ def main():
 
     # using user input 
     input_value = float(input("Enter a number : "))
-    
+
+    # printing corresponding y-values form training set
+    print("row | y_value ")
+    print(data.loc[data['x']==input_value, 'y'])
+
+    # prediciting y-value
     y = predict_value(input_value, w, b)
-    # index = data.index(input_value)
-    print(input_value, ":", y)#, "|", data[input_value])
+
+    print(input_value,":", y)
+
 
 
 if __name__ == "__main__":
