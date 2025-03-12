@@ -32,8 +32,9 @@ def stochastic_gradient_descent(alpha, data_set, w, b):
 
     for i in range(m):
 
-        x = data_set.iloc[i, 0]
-        y = data_set.iloc[i, 1]
+        random_pt = np.random.randint(0, m)
+        x = data_set.iloc[random_pt, 0]
+        y = data_set.iloc[random_pt, 1]
 
         # if value is nan ignore
         if pd.isna(x) or pd.isna(y):
@@ -95,9 +96,9 @@ def plot_graph(i, j):
     cost.append(j)
     iterations.append(i)
 
-    plt.plot(iterations, cost)
+    plt.plot(iterations, cost, color="red")
 
-    plt.pause(0.001)
+    plt.pause(0.00001)
 
 
 def predict_value(x, w, b):
@@ -117,10 +118,11 @@ def main():
     alpha = args.alpha
     i = args.i
 
+
     # choosing algorithm to perform 
-    if(type=="sto"):
+    if(args.type=="sto"):
         w, b = stochastic_gradient_descent(alpha, data, w, b)
-    elif(type=="batch"):
+    elif(args.type=="batch"):
         w, b = batch_gradient_descent(i, alpha, data, w, b)
     else: 
         print("Invalid Option")
