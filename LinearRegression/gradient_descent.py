@@ -16,19 +16,15 @@ parser.add_argument("-alpha", help="learning rate of gradient descen", type=floa
 parser.add_argument("-i", help="iterations for number of gradients", type=int)
 args = parser.parse_args()
 
+# enable interactive mode
 plt.ion()
-
-
-def initialize():
-    global cost
-    cost = list()
-    global iterations
-    iterations = list()
 
 
 def stochastic_gradient_descent(alpha, data_set, w, b):
 
     m = data_set[data_set.columns[0]].count()
+    cost = list()
+    count = 0 
 
     for i in range(m):
 
@@ -40,12 +36,18 @@ def stochastic_gradient_descent(alpha, data_set, w, b):
         if pd.isna(x) or pd.isna(y):
             continue
 
+        # compute f
         f = w * x + b
+        # compute parameters
         w = w - alpha * (1 / m) * (f - y) * x
         b = b - alpha * (1 / m) * (f - y)
+        # compute cost
         j = ((f - y) ** 2) / (2 * m)
+        cost.append(j)
 
-        plot_graph(i, j)
+        count = count+1
+
+    plot_graph(count, cost)
 
     return (w, b)
 
@@ -53,12 +55,13 @@ def stochastic_gradient_descent(alpha, data_set, w, b):
 def batch_gradient_descent(iterations, alpha, data_set, w, b):
 
     m = data_set[data_set.columns[0]].count()
+    cost = list()
 
     for i in range(iterations):
 
         total_w = 0
         total_b = 0
-        cost = 0
+        total_cost = 0
         count = 0
 
         for j in range(m):
@@ -78,27 +81,27 @@ def batch_gradient_descent(iterations, alpha, data_set, w, b):
             total_w += error * x
             total_b += error
             # compute cost
-            cost += error**2
+            total_cost += error**2
             # data points excluding nan
             count = count + 1
 
         w = w - (alpha * total_w) / count
         b = b - (alpha * total_b) / count
-        cost = cost / (2 * count)
-        plot_graph(i, cost)
+        cost.append(total_cost / (2 * count))
+
+    plot_graph(iterations, cost)
 
     return (w, b)
 
+
 # plot graph of Cost v/s iterations
-def plot_graph(i, j):
-
-    # calculating cost
-    cost.append(j)
-    iterations.append(i)
-
+def plot_graph(iterations, cost):
+    
+    iterations = [i for i in range(iterations)]
     plt.plot(iterations, cost, color="red")
+    
+    plt.show()
 
-    plt.pause(0.00001)
 
 
 def predict_value(x, w, b):
@@ -107,7 +110,6 @@ def predict_value(x, w, b):
 
 def main():
 
-    initialize()
 
     data = pd.read_csv("train.csv")
     test_data = pd.read_csv("test.csv")
@@ -118,16 +120,15 @@ def main():
     alpha = args.alpha
     i = args.i
 
-
-    # choosing algorithm to perform 
-    if(args.type=="sto"):
+    # choosing algorithm to perform
+    if args.type == "sto":
         w, b = stochastic_gradient_descent(alpha, data, w, b)
-    elif(args.type=="batch"):
+    elif args.type == "batch":
         w, b = batch_gradient_descent(i, alpha, data, w, b)
-    else: 
+    else:
         print("Invalid Option")
         exit()
-
+    
     # using testing data
     # test_data = pd.read_csv(path+"/test.csv")
     # rows = test_data[test_data.columns[0]].count()
@@ -148,8 +149,6 @@ def main():
     y = predict_value(input_value, w, b)
 
     print(input_value, ":", y)
-
-    plt.pause(10) # hold graph for 10 secs
 
 
 if __name__ == "__main__":
