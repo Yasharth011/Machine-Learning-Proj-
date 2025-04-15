@@ -3,7 +3,56 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+plt.ion()
 path = kagglehub.dataset_download("yasserh/titanic-dataset")
+
+def compute_f(x, wt, bias):
+
+    z = np.dot(x,wt) + bias
+    sigmoid = 1/(1+np.exp(-z))
+    return sigmoid 
+
+def compute_loss(f, y):
+    y1 = -y*np.log(f)
+    y2 = (1-y)*np.log(1-f)
+
+    return (y1-y2)
+
+def gradient_descent(x, y, alpha):
+
+    m = len(x) # no of training values 
+    w = np.zeros(x.shape[1]) # init weight param
+    b = 0 # init bias param
+    loss = list()
+
+    for i in range(m):
+
+        x_values = np.array(x.iloc[i])
+        y_value = y.iloc[i]
+        f = compute_f(x_values, w, b)
+
+        loss.append(compute_loss(f, y_value))
+
+        d_w = (alpha*np.dot((f-y_value), x_values))/m
+        d_b = (alpha*(f-y_value))/m
+
+        w = w - d_w
+        b = b - d_b
+    iterations = [i for i in range(m)]
+    plt.plot(iterations, loss, color='r')
+    return (w,b)
+
+def logistic_regression(data, x, y):
+    
+    alpha = 0.00001
+    w, b = gradient_descent(x, y, alpha)
+    m = len(x)
+    for i in range(m):
+        test_value = x.iloc[i]
+        if(compute_f(test_value, w, b, 1)>=0.5):
+            print("SURVIVED")
+        else:
+            print("NOT SURVIVED")
 
 def main():
 
@@ -25,6 +74,9 @@ def main():
     # map sex feature
     map_sex = {"male": 1, "female": 0}
     data["Sex"] = data["Sex"].map(map_sex)
+
+    # fill missing Embarked value with S (majority)
+    data = data.fillna({"Embarked": "S"})
 
     # map embarked feature
     map_embarked = {"S": 1, "C": 2, "Q": 3}
@@ -50,7 +102,17 @@ def main():
     # drop Name feature 
     data = data.drop("Name", axis=1)
 
-    print(data)
+    # map fare feature to logical groups 
+    data["FareBand"] = pd.qcut(data["Fare"], 4, labels=[1,2,3,4])
+
+    # drop fare feature 
+    data = data.drop("Fare", axis=1)
+
+    # spliting feature as X & Y
+    x = data.drop(["Survived", "PassengerId"], axis=1)
+    y = data["Survived"]
+
+    logistic_regression(data, x, y)
 
 
 if __name__ == "__main__":
@@ -61,6 +123,7 @@ Notes on data set :-
 Pclass - ticket class (1/2/3)
 SibSP - number of sibllings or spouses
 Parch - number of parents or children
+Embarked - S(Southampton), Q(Queenstown), C(Cherbourg)
 ---
 If a features does not have enough values drop it
 ---
