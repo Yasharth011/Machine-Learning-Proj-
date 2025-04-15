@@ -24,7 +24,7 @@ def main():
 
     # map sex feature
     map_sex = {"male": 1, "female": 0}
-    data["Sex"].map(map_sex)
+    data["Sex"] = data["Sex"].map(map_sex)
 
     # map embarked feature
     map_embarked = {"S": 1, "C": 2, "Q": 3}
@@ -48,7 +48,9 @@ def main():
     data["Title"] = data["Title"].fillna(0)
 
     # drop Name feature 
-    data = data.drop("Name", aixs=1)
+    data = data.drop("Name", axis=1)
+
+    print(data)
 
 
 if __name__ == "__main__":
