@@ -19,6 +19,9 @@ def main():
     # drop ticket feature (no usefull data)
     data = data.drop("Ticket", axis=1)
 
+    # drop age feature 
+    data = data.drop("Age", axis=1)
+
     # map sex feature
     map_sex = {"male": 1, "female": 0}
     data["Sex"].map(map_sex)
@@ -31,7 +34,21 @@ def main():
     dataset = pd.Series(data["Name"])
     data["Title"] = dataset.str.extract(r" ([A-Za-z]+)\.")
 
-    print(pd.crosstab(data["Title"], data["Sex"]))
+    # print(pd.crosstab(data["Title"], data["Sex"]))
+
+    # replacing the Titles with common Titles like (Rare, Royal, Miss, Mrs)
+    data["Title"] = data["Title"].replace(["Capt", "Col", "Don", "Don", "Dr", "Jonkheer", "Major", "Rev"], "Rare")
+    data["Title"] = data["Title"].replace(["Countess", "Lady", "Sir"], "Royal")
+    data["Title"] = data["Title"].replace(["Mlle", "Ms"], "Miss")
+    data["Title"] = data["Title"].replace("Mme", "Mrs")
+
+    # mapping each Title with a number 
+    title_mapping = {"Mr":1, "Mrs":2, "Master":3, "Miss":4, "Royal":5, "Rare":6}
+    data["Title"] = data["Title"].map(title_mapping)
+    data["Title"] = data["Title"].fillna(0)
+
+    # drop Name feature 
+    data = data.drop("Name", aixs=1)
 
 
 if __name__ == "__main__":
